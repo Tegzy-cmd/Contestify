@@ -5,6 +5,7 @@ const contestantSchema = new Schema({
   stageName: String,
   bio: String,
   photo: String,
+  photoPublicId: String,
   voteCount: { type: Number, default: 0 },
   approved: { type: Boolean, default: false }
 }, { timestamps: true });

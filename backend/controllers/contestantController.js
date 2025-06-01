@@ -1,22 +1,38 @@
-import { Contestant } from '../models/contestantModel.js';
+import { Contestant } from "../models/contestantModel.js";
+import { User } from "../models/User.js";
+import transporter from "../config/nodemailer.js";
 
+const deleteCloudImage = async (photoPublicId) =>{
+     try {
+         await cloudinary.uploader.destroy(contestant.photoPublicId);
+         return true;
+     } catch (error) {
+        return res.status(500).json({success:false, message: error.mesaage})
+        
+     }     
+   
+}
 
 export const createProfile = async (req, res) => {
   try {
     const { stageName, bio, photo } = req.body;
     const userId = req.user._id; // Assuming user ID is stored in req.user after authentication
 
-    const existing =await Contestant.findOne({ userID});
+    const existing = await Contestant.findOne({ userID });
 
     if (existing) {
-        return res.status(400).json({ error: 'Profile already exist' });
+      return res.status(400).json({ error: "Profile already exist" });
+    }
+      if (!req.file || !req.file.path) {
+      return res.status(400).json({ error: 'Photo upload required' });
     }
 
     const profile = await Contestant.create({
       userId,
       stageName,
       bio,
-      photo
+      photo: req.file.path,
+      photoPublicId:req.file.filename
     });
 
     res.status(201).json(profile);
@@ -26,50 +42,72 @@ export const createProfile = async (req, res) => {
 };
 
 export const listApprovedProfiles = async (req, res) => {
-    try {
-       const contestants = await Contestant.find({ approved: true })
-            .populate('userId', 'name email') // Populate user details
-            .sort({ createdAt: -1 }); // Sort by creation date
+  try {
+    const contestants = await Contestant.find({ approved: true })
+      .populate("userId", "name email") // Populate user details
+      .sort({ createdAt: -1 }); // Sort by creation date
 
-        res.json(contestants);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-}
-
+    res.json(contestants);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 export const approveProfile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { email, name } = await User.findById(id);
+    const profile = await Contestant.findByIdAndUpdate(
+      id,
+      { approved: true },
+      { new: true }
+    );
 
-        try {
-            const { id } = req.params;
-            const profile = await Contestant.findByIdAndUpdate(id, { approved: true }, { new: true });
+    if (!profile) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Profile not found" });
+    }
 
-            if (!profile) {
-                return res.status(404).json({success:false, error: 'Profile not found' });
-            }
+    res.json({
+      success: true,
+      message: profile.stageName + " approved successfully",
+      profile,
+    });
+    // Send Approval email
+    const mailOptions = {
+      from: process.env.EMAIL_FROM, // Sender address
+      to: email, // List of recipients
+      subject: `Welcome to , ${process.env.APP_NAME}`, // Subject line
+      text: `Hello ${name},\n\n Your profile has been approved! We're excited to have you on board.\n\nBest regards,\nYour Company Name`, // Plain text body
+    };
+    // Send the email using nodemailer
 
-            res.json({success: true, message:profile.stageName + ' approved successfully', profile });
-        }
-        catch (error) {
-            res.status(500).json({success:false, error: error.message });
-        }
-}
-
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
 
 export const deleteProfile = async (req, res) => {
-
-        try {
-            const { id } = req.params;
-            // const profile = await Contestant.findByIdAndUpdate(id, { approved: true }, { new: true });
-            const profile = await Contestant.findByIdAndDelete(id);
-
-            if (!profile) {
-                return res.status(404).json({success:false, error: 'Profile not found' });
-            }
-
-            res.status(200).json({ success:true, message: 'Profile deleted successfully' });
-        }
-        catch (error) {
-            res.status(500).json({success:false, error: error.message });
-        }
-}
+  try {
+    const { id } = req.params;
+    const profile = await Contestant.findById(id);
+    if (!profile) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Profile not found" });
+    }
+    if(!deleteCloudImage(profile.photoPublicId)){
+         return res
+        .status(404)
+        .json({ success: false, error: "Unable to delete profile photo from cloud" });
+    }
+    await profile.deleteOne()
+    res
+      .status(200)
+      .json({ success: true, message: "Profile deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};

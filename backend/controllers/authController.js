@@ -1,8 +1,8 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { userModel } from "../models/userModel.js";
+import { User } from "../models/User.js";
 import transporter from "../config/nodemailer.js"; // Import nodemailer transporter
-// import User from '../models/userModel.js';
+// import User from '../models/User.js';
 
 export const register = async (req, res) => {
   const { name, email, password } = req.body;
@@ -17,7 +17,7 @@ export const register = async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     // Check if user already exists
-    const existingUser = await userModel.findOne({ email });
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res
         .status(400)
@@ -25,7 +25,7 @@ export const register = async (req, res) => {
     }
 
     // Create new user
-    const newUser = new userModel({ name, email, password: hashedPassword });
+    const newUser = new User({ name, email, password: hashedPassword });
     await newUser.save();
 
     const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
@@ -71,7 +71,7 @@ export const login = async (req, res) => {
   }
   try {
     // Find user by email
-    const user = await userModel.findOne({ email });
+    const user = await User.findOne({ email });
     if (!user) {
       return res
         .status(400)
@@ -127,7 +127,7 @@ export const logout = async (req, res) => {
 export const sendVerifyOtp = async (req, res) => {
   try {
     const { userID } = req.body;
-    const user = await userModel.findById(userID);
+    const user = await User.findById(userID);
 
     if (user.isAccountVerified) {
       return res
@@ -164,7 +164,7 @@ export const verifyEmail = async (req, res) => {
       .json({ success: false, message: "User ID and OTP are required" });
   }
   try {
-    const user = await userModel.findById(userID);
+    const user = await User.findById(userID);
     if (!user) {
       return res
         .status(404)
@@ -212,7 +212,7 @@ export const sendResetOTP = async (req, res) => {
     }
 
     try {
-        const user = await userModel.findOne(email);
+        const user = await User.findOne(email);
 
         if(!user){
             return res.json({success:false, message:'User does not exist'})
@@ -253,7 +253,7 @@ export const resetPassword = async(req,res) =>{
 
     try {
         
-        const user = await userModel.findOne(email);
+        const user = await User.findOne(email);
 
         if(!user){
           return res.json({success:false, message:'User not found'}) 

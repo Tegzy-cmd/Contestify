@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { User } from '../models/userModel';
 
 
 
@@ -14,10 +15,16 @@ export const isAdminAuth = async(req, res, next) => {
        if(!decoded || !decoded.id) {
             return res.status(401).json({ success: false, message: "Invalid token, please login again" });
         }
+        // check if user isAdmin
+        const user = User.findById(decoded.id)
+        if(!user.role === 'admin'){
+            return res.status(401).json({success:false, message:'You are not an admin'})
+        }
         // Attach user ID to request object for further use
         req.body.userId = decoded.id;
 
-        // check if user isAdmin
+        
+
 
 
         next(); // Proceed to the next middleware or route handler

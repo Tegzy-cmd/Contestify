@@ -7,8 +7,19 @@ import {Config} from '../models/configModel.js';
 export const initiateVote = async (req,res) =>{
     try {
         const costPerVote = await Config.findOne({ key: 'votePrice' }) || { value: 50 }; // Default to 50 if not found
-        const {email, phone, voteCount,contestantId} = req.body
+        const {email, phone, voteCount,contestantId,approved} = req.body
         const amount = voteCount * costPerVote; 
+
+        if (!email || !phone || !voteCount || !contestantId) {
+            return res.status(400).json({error: 'Email, phone, vote count and contestant ID are required'});
+        }
+        if (!approved) {
+            return res.status(403).json({error: 'Voting is not allowed at this time'});
+        }
+        // Validate vote count
+        if (voteCount <= 0 || !Number.isInteger(voteCount)) {
+            return res.status(400).json({error: 'Vote count must be a positive integer'});
+        }
 
         const reference = uuidv4();
 
