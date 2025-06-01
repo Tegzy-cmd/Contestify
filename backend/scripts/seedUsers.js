@@ -66,7 +66,7 @@ const users = [
 
 async function seedUsers() {
   try {
-    await mongoose.connect("mongodb://localhost:27017/contestify");
+    await mongoose.connect(process.env.MONGODB_URI);
     await User.deleteMany({});
     await User.insertMany(users);
     console.log("User data seeded!");
