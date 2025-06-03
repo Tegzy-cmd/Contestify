@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { userAuth } from '../middlewares/userAuth.js';
 import {isAdminAuth} from '../middlewares/isAdminAuth.js';
-import { upload } from '../middlewares/upload.js'; // Assuming you have a middleware for file uploads
+import  upload  from '../middlewares/upload.js'; // Assuming you have a middleware for file uploads
 const router = Router();
 import {
   createProfile,
