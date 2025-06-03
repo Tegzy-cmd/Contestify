@@ -13,6 +13,22 @@ const deleteCloudImage = async (photoPublicId) =>{
      }     
    
 }
+
+const uploadCloudImage = async (file) => {
+  try {
+    const result = await cloudinary.uploader.upload(file.path, {
+      folder: 'contestant_photos', // Specify the folder in Cloudinary
+      public_id: file.filename, // Use the original filename as public ID
+      resource_type: 'image', // Specify the resource type
+    });
+    return {
+      url: result.secure_url, // The URL of the uploaded image
+      publicId: result.public_id, // The public ID of the uploaded image
+    };
+  } catch (error) {
+    throw new Error('Failed to upload image to Cloudinary: ' + error.message);
+  }
+};
 // Create a contestant profile  
 
 export const createProfile = async (req, res) => {
@@ -29,15 +45,22 @@ export const createProfile = async (req, res) => {
       return res.status(400).json({ error: 'Photo upload required' });
     }
 
+    if((!stageName || !bio) || stageName.trim() === '' || bio.trim() === ''){
+      return res.status(400).json({ error: 'Stage name and bio are required' });
+    }
+
+    const { url, publicId } = await uploadCloudImage(req.file);
+
     const profile = await Contestant.create({
       userId,
       stageName,
       bio,
-      photo: req.file.path,
-      photoPublicId:req.file.filename
+      photo: url, // Store the URL of the uploaded image
+      photoPublicId: publicId, // Store the public ID of the uploaded image
+      
     });
 
-    res.status(201).json(profile);
+    res.status(201).json({message:'Profile Created',profile});
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
