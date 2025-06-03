@@ -3,14 +3,20 @@ import jwt from 'jsonwebtoken';
 
 
 export const userAuth = async(req, res, next) => {
-    const {token} = req.cookies;
-    if(!token){
-       return res.json({success:false, message:"Not Authorized Login Again"});;
-    }
+    // Extract token from cookies
+    const { token } = req.cookies;
+
+
+    // Check if token is present
     
+    if(!token){
+       return res.status(401).json({success:false, message:"Not Authorized Login Again"});
+    }
+    // Verify the token using JWT
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-       if(!decoded || !decoded.id) {
+        // Check if decoded token contains user ID
+        if(!decoded || !decoded.id) {
             return res.status(401).json({ success: false, message: "Invalid token, please login again" });
         }
         // Attach user ID to request object for further use

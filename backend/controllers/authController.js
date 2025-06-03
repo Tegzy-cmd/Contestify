@@ -2,7 +2,6 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import {User}  from '../models/userModel.js';
 import transporter from "../config/nodemailer.js"; // Import nodemailer transporter
-// import User from '../models/User.js';
 
 export const register = async (req, res) => {
   const { name, email, password } = req.body;
@@ -44,17 +43,14 @@ export const register = async (req, res) => {
       from: process.env.EMAIL_FROM, // Sender address
       to: email, // List of recipients
       subject: `Welcome to , ${process.env.APP_NAME}`, // Subject line
-      text: `Hello ${name},\n\nThank you for registering with us! We're excited to have you on board.\n\nBest regards,\nYour Company Name`, // Plain text body
+      text: `Hello ${name},\n\nThank you for registering with us! We're excited to have you on board.\n\nBest regards,\n ${process.env.APP_NAME}`, // Plain text body
     };
-    // Send the email using nodemailer
 
     await transporter.sendMail(mailOptions);
-    // Log the email sending status
     console.log(`Welcome email sent to ${email}`);
-    // Respond with success message
     res
       .status(201)
-      .json({ success: true, message: "User registered successfully" });
+      .json({ success: true, message: "User registered successfully", token});
   } catch (error) {
     console.error("Registration error:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -95,10 +91,9 @@ export const login = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000, // 1 day
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict", // Prevent CSRF attacks
     });
-    // Respond with success message
     res
       .status(200)
-      .json({ success: true, message: "User logged in successfully" });
+      .json({ success: true, message: "User logged in successfully", token });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -115,7 +110,6 @@ export const logout = async (req, res) => {
       secure: process.env.NODE_ENV === "production", // Use secure cookies in production
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict", // Prevent CSRF attacks
     });
-    // Respond with success message
     res
       .status(200)
       .json({ success: true, message: "User logged out successfully" });
@@ -130,6 +124,10 @@ export const sendVerifyOtp = async (req, res) => {
   try {
     const { userID } = req.body;
     const user = await User.findById(userID);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
 
     if (user.isAccountVerified) {
       return res
@@ -155,7 +153,10 @@ export const sendVerifyOtp = async (req, res) => {
     res
       .status(200)
       .json({ success: true, message: "Verification OTP sent successfully" });
-  } catch (error) {}
+  } catch (error) {
+    console.error("Send verify OTP error:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
 };
 
 
@@ -203,8 +204,10 @@ export const verifyEmail = async (req, res) => {
 // Checks if user is logged in
 export const isAuthenticated = async (req, res) => {
   try {
-    return res.json({ success: true, message: "User is Authenticated " });
-  } catch (error) {}
+    return res.status(200).json({ success: true, message: "User is Authenticated " });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
 };
 
 
@@ -214,14 +217,14 @@ export const sendResetOTP = async (req, res) => {
     const {email} = req.body;
      
     if(!email){
-        return res.json({success: false, message:'Email is required'});
+        return res.status(400).json({success: false, message:'Email is required'});
     }
 
     try {
-        const user = await User.findOne(email);
+        const user = await User.findOne({email});
 
         if(!user){
-            return res.json({success:false, message:'User does not exist'})
+            return res.status(404).json({success:false, message:'User does not exist'})
         }
 
          // Generate OTP
@@ -239,11 +242,11 @@ export const sendResetOTP = async (req, res) => {
     };
     await transporter.sendMail(mailOptions);
 
-    return res.json({success: true, message:'Otp sent to your email'})
+    return res.status(200).json({success: true, message:'Otp sent to your email'})
 
         
     } catch (error) {
-        return res.json({success: false, message:error.message});
+        return res.status(500).json({success: false, message:error.message});
     }
 };
 
@@ -252,25 +255,23 @@ export const sendResetOTP = async (req, res) => {
 export const resetPassword = async(req,res) =>{
     const {email, otp, newPassword} = req.body;
 
-
     if(!email || !otp || !newPassword){
-        return res.json({success:false, message:'Email , OTP and new password are required'})
+        return res.status(400).json({success:false, message:'Email , OTP and new password are required'})
     }
 
     try {
-        
-        const user = await User.findOne(email);
+        const user = await User.findOne({email});
 
         if(!user){
-          return res.json({success:false, message:'User not found'}) 
+          return res.status(404).json({success:false, message:'User not found'}) 
         }
 
         if(user.resetOtp === "" || user.resetOtp !== otp){
-            return res.json({success:false, message:'Invalid OTP'}) 
+            return res.status(400).json({success:false, message:'Invalid OTP'}) 
         }
 
-        if(Date.now > user.resetOtpExpiresAt ){
-            return res.json({success:false, message:'OTP Expired'}) 
+        if(Date.now() > user.resetOtpExpiresAt ){
+            return res.status(400).json({success:false, message:'OTP Expired'}) 
         }
 
         const hashedPassword = await bcrypt.hash(newPassword,10);
@@ -280,12 +281,9 @@ export const resetPassword = async(req,res) =>{
         user.resetOtpExpiresAt = '';
         await user.save();
         
-        return res.json({success:true, message:'Password reset successfully'})
-
+        return res.status(200).json({success:true, message:'Password reset successfully'})
 
     } catch (error) {
-
-        return res.json({success:false, message:error.message})
-        
+        return res.status(500).json({success:false, message:error.message})
     }
 }
