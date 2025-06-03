@@ -7,14 +7,14 @@ describe('Auth API', () => {
     await disconnect();
   });
 
-  it('should register a new user', async () => {
+  it('should register a new contestant', async () => {
     const res = await request(app)
       .post('/api/auth/register')
       .send({
         name: 'Test User',
         email: 'test@example.com',
         password: 'password123',
-        role: 'user'
+        role: 'contestant'
       });
 
     expect(res.statusCode).toEqual(201);
