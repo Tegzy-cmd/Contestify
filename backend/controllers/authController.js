@@ -105,6 +105,8 @@ export const login = async (req, res) => {
   }
 };
 
+
+// Log user out
 export const logout = async (req, res) => {
   try {
     // Clear the token cookie
@@ -156,6 +158,8 @@ export const sendVerifyOtp = async (req, res) => {
   } catch (error) {}
 };
 
+
+// Verify Email
 export const verifyEmail = async (req, res) => {
   const { userID, otp } = req.body;
   if (!userID || !otp) {
@@ -195,6 +199,8 @@ export const verifyEmail = async (req, res) => {
   }
 };
 
+
+// Checks if user is logged in
 export const isAuthenticated = async (req, res) => {
   try {
     return res.json({ success: true, message: "User is Authenticated " });

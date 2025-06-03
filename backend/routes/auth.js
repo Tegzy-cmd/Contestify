@@ -8,9 +8,8 @@ import {
   isAuthenticated,
   sendResetOTP,
   resetPassword,
-} from '../controllers/authController.js';
-import {userAuth} from '../middlewares/userAuth.js';
-
+} from "../controllers/authController.js";
+import { userAuth } from "../middlewares/userAuth.js";
 
 // server/routes/authRoutes.js
 // This file defines the authentication routes for user registration, login, logout, email verification, and password reset.
