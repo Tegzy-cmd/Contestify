@@ -1,4 +1,4 @@
-import Config from '../models/Config.js';
+import {Config} from '../models/configModel.js';
 
 // Get current config
 export const getConfig = async (req, res) => {

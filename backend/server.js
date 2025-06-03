@@ -8,6 +8,7 @@ import authRoutes from "./routes/auth.js";
 import voteRoutes from "./routes/vote.js";
 import webhookRoutes from "./routes/webhook.js";
 import contestantRoutes from "./routes/contestant.js";
+import adminRoutes from "./routes/admin.js"; // Assuming you have an admin route file
 import cookieParser from "cookie-parser";
 
 app.use(express.json());
@@ -24,7 +25,8 @@ connectDB();
 app.use("/api/auth", authRoutes);
 app.use("/api/vote", voteRoutes);
 app.use("/api/payment", webhookRoutes);
-app.use("/api/contestants", contestantRoutes);
+app.use("/api/contestant", contestantRoutes);
+app.use("/api/admin", adminRoutes); // Admin routes
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

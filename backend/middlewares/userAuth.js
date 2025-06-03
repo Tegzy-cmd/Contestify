@@ -26,6 +26,7 @@ export const userAuth = async(req, res, next) => {
         console.error("Authentication error:", error);
         return res.status(401).json({ success: false, message: "Invalid token, please login again" });
     }
+
 }
 
 
