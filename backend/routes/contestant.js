@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { userAuth } from "../middlewares/userAuth.js";
-import { isAdminAuth } from "../middlewares/isAdminAuth.js";
 import upload from "../middlewares/upload.js"; // Assuming you have a middleware for file uploads
 import {
   createProfile,
@@ -8,6 +7,7 @@ import {
   listApprovedProfiles,
   deleteProfile,
 } from "../controllers/contestantController.js";
+import { isAuthenticated } from "../controllers/authController.js";
 
 
 const contestantRouter = Router();

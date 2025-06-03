@@ -1,6 +1,7 @@
 import { Contestant } from "../models/contestantModel.js";
 import  {User} from '../models/userModel.js'
 import transporter from "../config/nodemailer.js";
+import {cloudinary} from "../config/cloudinary.js";
 
 const deleteCloudImage = async (photoPublicId) =>{
      try {
@@ -12,6 +13,7 @@ const deleteCloudImage = async (photoPublicId) =>{
      }     
    
 }
+// Create a contestant profile  
 
 export const createProfile = async (req, res) => {
   try {

@@ -81,6 +81,7 @@ export const login = async (req, res) => {
         .json({ success: false, message: "Invalid email or password" });
     }
     // Generate JWT token
+    console.log("User logged in:", user._id);
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRY, // Token expiration time
     });

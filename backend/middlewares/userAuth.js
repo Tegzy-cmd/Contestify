@@ -20,7 +20,7 @@ export const userAuth = async(req, res, next) => {
             return res.status(401).json({ success: false, message: "Invalid token, please login again" });
         }
         // Attach user ID to request object for further use
-        req.body.userId = decoded.id;
+        req.user = decoded.id;
         next(); // Proceed to the next middleware or route handler
     } catch (error) {
         console.error("Authentication error:", error);
