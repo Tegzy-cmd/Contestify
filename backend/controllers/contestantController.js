@@ -35,7 +35,6 @@ export const createProfile = async (req, res) => {
   try {
     const { stageName, bio, photo } = req.body;
     const userId = req.user?._id;
-    console.log(userId);
 
     const existing = await Contestant.findOne({ userId });
 
