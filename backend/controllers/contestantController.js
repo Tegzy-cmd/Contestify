@@ -34,9 +34,11 @@ const uploadCloudImage = async (file) => {
 export const createProfile = async (req, res) => {
   try {
     const { stageName, bio, photo } = req.body;
-    const userId = req.user._id; // Assuming user ID is stored in req.user after authentication
+    userId = req.user ._id; // Assuming userId is available in req.user
+    console.log(userId);
+    
 
-    const existing = await Contestant.findOne({ userID });
+    const existing = await Contestant.findOne({ userId });
 
     if (existing) {
       return res.status(400).json({ error: "Profile already exist" });

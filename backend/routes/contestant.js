@@ -7,7 +7,6 @@ import {
   listApprovedProfiles,
   deleteProfile,
 } from "../controllers/contestantController.js";
-import { isAuthenticated } from "../controllers/authController.js";
 
 
 const contestantRouter = Router();
