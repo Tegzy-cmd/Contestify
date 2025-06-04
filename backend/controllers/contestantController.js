@@ -34,9 +34,8 @@ const uploadCloudImage = async (file) => {
 export const createProfile = async (req, res) => {
   try {
     const { stageName, bio, photo } = req.body;
-    userId = req.user ._id; // Assuming userId is available in req.user
+    const userId = req.user?._id;
     console.log(userId);
-    
 
     const existing = await Contestant.findOne({ userId });
 
