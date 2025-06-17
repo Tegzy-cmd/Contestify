@@ -36,8 +36,8 @@ app.use("/admin", adminRouter);
 describe("Admin Routes", () => {
   it("should login admin", async () => {
     const res = await request(app).post("/admin/login").send({
-      username: "admin",
-      password: "password",
+      email: "alice@example.com",
+      password: "password123",
     });
     expect(res.statusCode).toBe(200);
     expect(res.body.message).toBe("Logged in");
