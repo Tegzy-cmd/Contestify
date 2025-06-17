@@ -136,3 +136,15 @@ export const deleteProfile = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
+export const getProfile = async (req, res) => {
+  try {
+    const profile = await Contestant.findOne({ userId: req.user._id });
+    if (!profile) {
+      return res.status(404).json({ error: "Profile not found" });
+    }
+    res.status(200).json({success:true, profile});
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

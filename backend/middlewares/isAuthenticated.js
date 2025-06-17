@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 
 
 
-export const userAuth = async (req, res, next) => {
+export const isAuthenticated = async (req, res, next) => {
     // Ensure cookies are present
     if (!req.cookies) {
         return res.status(401).json({ success: false, message: "Not Authorized, cookies not found" });
@@ -30,8 +30,7 @@ export const userAuth = async (req, res, next) => {
             return res.status(401).json({ success: false, message: "Invalid token, please login again" });
         }
         // Attach user ID to request object for further use
-        req.user = { _id: decoded.id }; 
-        console.log(req.user)// Assuming you want to attach the user ID to req.user
+        req.user = { _id: decoded.id }; // Use _id to match the user model's field
         next(); // Proceed to the next middleware or route handler
     } catch (error) {
         console.error("Authentication error:", error);
@@ -40,7 +39,7 @@ export const userAuth = async (req, res, next) => {
 }
 
 
-// server/middleware/userAuth.js
+// server/middleware/isAuthenticated.js
 // This middleware checks if the user is authenticated by verifying the JWT token
 // If the token is valid, it attaches the user ID to the request object and calls next()
 // If the token is invalid or missing, it responds with an error message

@@ -1,5 +1,5 @@
 import express from "express";
-import { userAuth } from "../middlewares/userAuth.js";
+import { isAuthenticated } from "../middlewares/isAuthenticated.js";
 import {
   login,
   logout,
@@ -32,10 +32,10 @@ adminRouter.get(
 adminRouter.put("/:id/approve", isAdminAuth, isAuthenticated, approveProfile);
 
 // Admin/user can delete their profile can specific delete profile
-adminRouter.delete("/:id", isAdminAuth, isAuthenticated, deleteProfile);
+adminRouter.delete("/:id", isAdminAuth, deleteProfile);
 
 //Set Website Config
-adminRouter.get("/config", isAdminAuth, isAuthenticated, getConfig);
-adminRouter.put("/config", isAdminAuth, isAuthenticated, updateConfig);
+adminRouter.get("/config", isAdminAuth, getConfig);
+adminRouter.put("/config", isAdminAuth, updateConfig);
 
 export default adminRouter;

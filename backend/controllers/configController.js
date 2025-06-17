@@ -21,7 +21,8 @@ export const updateConfig = async (req, res) => {
                 ...(votePrice && { votePrice }),
                 ...(isVotingOpen !== undefined && { isVotingOpen }),
                 ...(contestTitle && { contestTitle }),
-                updatedBy: req.user._id
+                updatedBy: req.user?._id, // Assuming req.user is set by auth middleware
+                updatedAt: new Date(),
             },
             { new: true, upsert: true }
         );
