@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 export const isAuthenticated = async (req, res, next) => {
     // Ensure cookies are present
     if (!req.cookies) {
-        return res.status(401).json({ success: false, message: "Not Authorized, cookies not found" });
+         res.status(401).json({ success: false, message: "Not Authorized, cookies not found" });
     }
 
     // Extract token from cookies
@@ -13,13 +13,13 @@ export const isAuthenticated = async (req, res, next) => {
 
     // Check if token is present
     if (!token) {
-        return res.status(401).json({ success: false, message: "Not Authorized Login Again" });
+         res.status(401).json({ success: false, message: "Not Authorized Login Again" });
     }
 
     // Check if JWT_SECRET is set
     if (!process.env.JWT_SECRET) {
         console.error("JWT_SECRET is not defined in environment variables.");
-        return res.status(500).json({ success: false, message: "Internal server error" });
+         res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     // Verify the token using JWT
@@ -27,14 +27,14 @@ export const isAuthenticated = async (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         // Check if decoded token contains user ID
         if (!decoded || !decoded.id) {
-            return res.status(401).json({ success: false, message: "Invalid token, please login again" });
+             res.status(401).json({ success: false, message: "Invalid token, please login again" });
         }
         // Attach user ID to request object for further use
         req.user = { _id: decoded.id }; // Use _id to match the user model's field
         next(); // Proceed to the next middleware or route handler
     } catch (error) {
         console.error("Authentication error:", error);
-        return res.status(401).json({ success: false, message: "Invalid token, please login again" });
+         res.status(401).json({ success: false, message: "Invalid token, please login again" });
     }
 }
 
